@@ -149,10 +149,10 @@ class Bot(Client):
             self.LOGGER(__name__, self.name).info(f"Primary DB Channel: {self.primary_db_channel}")
             self.LOGGER(__name__, self.name).info(f"Total DB Channels: {len(self.db_channels)}")
         except Exception as e:
-            self.LOGGER(__name__, self.name).warning(e)
-            self.LOGGER(__name__, self.name).warning(f"Make Sure bot is Admin in DB Channel, and Double check the database channel Value, Current Value {self.db}")
-            self.LOGGER(__name__, self.name).info("\nBot Stopped. Join https://t.me/animes_cruise for support")
-            sys.exit()
+            self.LOGGER(__name__).warning(e)
+    self.LOGGER(__name__).warning(f"Make Sure bot is Admin in DB Channel, and Double check the CHANNEL_ID Value, Current Value {CHANNEL_ID}")
+    self.LOGGER(__name__).info("\nBot may have issues but will continue running. Join https://t.me/+RNPh1LbP8QZlYmU1 for support")
+    # Removed sys.exit() to prevent stop
         self.LOGGER(__name__, self.name).info("Bot Started!!")
         
         # Send restart msge to owner
