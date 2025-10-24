@@ -22,7 +22,7 @@ WORKERS = 5
 DB_URI = "mongodb+srv://purushseva:x1EMxzK2lJUtXURV@cluster0.dtupklu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 DB_NAME = "amandahiya168"
 
-FSUBS = [[-1002798552637, True, 10]] # Force Subscription Channels [channel_id, request_enabled, timer_in_minutes]
+FSUBS = [[-10023124958025, True, 10]] # Force Subscription Channels [channel_id, request_enabled, timer_in_minutes]
 # Database Channel (Primary)
 DB_CHANNEL = -1003121734218   # just put channel id dont add ""
 # Multiple Database Channels (can be set via bot settings)
