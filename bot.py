@@ -155,9 +155,10 @@ class Bot(Client):
     # Removed sys.exit() to prevent stop
         class Bot(Client):
     def start(self):
-        # other code
-        self.LOGGER(__name__, self.name).info("Bot Started!!")
-        # other code
+    # other code
+    self.LOGGER(__name__, self.name).info("Bot Started!!")
+    # other code
+
 
         
         # Send restart msge to owner
