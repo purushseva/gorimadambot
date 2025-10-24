@@ -12,16 +12,16 @@ from helper import MongoDB
 
 version = "v1.0.0"
 
-
 class Bot(Client):
-    def __init__(self, session, workers, db, fsub, token, admins, messages, auto_del, db_uri, db_name, api_id, api_hash, protect, disable_btn):
+    def __init__(
+        self, session, workers, db, fsub, token, admins, messages,
+        auto_del, db_uri, db_name, api_id, api_hash, protect, disable_btn
+    ):
         super().__init__(
             name=session,
             api_hash=api_hash,
             api_id=api_id,
-            plugins={
-                "root": "plugins"
-            },
+            plugins={"root": "plugins"},
             workers=workers,
             bot_token=token
         )
@@ -69,28 +69,25 @@ class Bot(Client):
                         self.fsub_dict[channel[0]] = [name, None, channel[1], channel[2]]
                 except Exception as e:
                     self.LOGGER(__name__, self.name).warning("Bot can't Export Invite link from Force Sub Channel!")
-                    self.LOGGER(__name__, self.name).warning("\nBot Stopped.")
-                    sys.exit()
+                    self.LOGGER(__name__, self.name).warning("\nBot continuing despite the error.")
+                    # Removed sys.exit() to prevent stop
                     
         # Load dynamically added fsub channels from database
         try:
             db_fsub_channels = await self.mongodb.get_fsub_channels()
             for channel_id_str, channel_data in db_fsub_channels.items():
                 channel_id = int(channel_id_str)
-                # Skip if already loaded from static config
                 if channel_id in self.fsub_dict:
                     continue
                 try:
                     chat = await self.get_chat(channel_id)
                     name = chat.title
-                    # Update name in case it changed
                     channel_data[0] = name
                     self.fsub_dict[channel_id] = channel_data
-                    if channel_data[2]:  # if request is True
+                    if channel_data[2]:
                         self.req_channels.append(channel_id)
                 except Exception as e:
                     self.LOGGER(__name__, self.name).warning(f"Could not load dynamic fsub channel {channel_id}: {e}")
-                    # Remove invalid channel from database
                     await self.mongodb.remove_fsub_channel(channel_id)
         except Exception as e:
             self.LOGGER(__name__, self.name).warning(f"Error loading dynamic fsub channels: {e}")
@@ -106,20 +103,16 @@ class Bot(Client):
             for channel_id_str, channel_data in db_channels_data.items():
                 channel_id = int(channel_id_str)
                 try:
-                    # Verify channel still exists and is accessible
                     chat = await self.get_chat(channel_id)
-                    # Update name in case it changed
                     channel_data['name'] = chat.title
                     self.db_channels[channel_id_str] = channel_data
                     
-                    # Set primary channel if marked as primary
                     if channel_data.get('is_primary', False):
                         self.primary_db_channel = channel_id
-                        self.db = channel_id  # Update current db reference
+                        self.db = channel_id
                         
                 except Exception as e:
                     self.LOGGER(__name__, self.name).warning(f"Could not load DB channel {channel_id}: {e}")
-                    # Remove invalid channel from database
                     await self.mongodb.remove_db_channel(channel_id)
         except Exception as e:
             self.LOGGER(__name__, self.name).warning(f"Error loading DB channels: {e}")
@@ -133,7 +126,6 @@ class Bot(Client):
             self.shortner_enabled = shortner_settings.get('enabled', True)
         except Exception as e:
             self.LOGGER(__name__, self.name).warning(f"Error loading shortner settings: {e}")
-            # Set defaults from config if loading fails
             self.short_url = SHORT_URL
             self.short_api = SHORT_API
             self.tutorial_link = SHORT_TUT
@@ -142,48 +134,51 @@ class Bot(Client):
         try:
             db_channel = await self.get_chat(self.db)
             self.db_channel = db_channel
-            test = await self.send_message(chat_id = db_channel.id, text = "Testing Message by @ProYato")
+            test = await self.send_message(chat_id=db_channel.id, text="Testing Message by @ProYato")
             await test.delete()
             
-            # Log DB channels info
             self.LOGGER(__name__, self.name).info(f"Primary DB Channel: {self.primary_db_channel}")
             self.LOGGER(__name__, self.name).info(f"Total DB Channels: {len(self.db_channels)}")
         except Exception as e:
             self.LOGGER(__name__).warning(e)
-    self.LOGGER(__name__).warning(f"Make Sure bot is Admin in DB Channel, and Double check the CHANNEL_ID Value, Current Value {CHANNEL_ID}")
-    self.LOGGER(__name__).info("\nBot may have issues but will continue running. Join https://t.me/+RNPh1LbP8QZlYmU1 for support")
-    # Removed sys.exit() to prevent stop
-class Bot(Client):
-    def __init__(self):
-        # rest of class
-
-    def start(self):
-    # other code
-    self.LOGGER(__name__, self.name).info("Bot Started!!")
-    # other code
-
-
+            self.LOGGER(__name__).warning(f"Make Sure bot is Admin in DB Channel, and Double check the CHANNEL_ID Value, Current Value {self.db}")
+            self.LOGGER(__name__).info("\nBot may have issues but will continue running. Join https://t.me/+RNPh1LbP8QZlYmU1 for support")
+            # sys.exit() removed to prevent stop
         
-        # Send restart msge to owner
+        self.set_parse_mode(ParseMode.HTML)
+        self.username = usr_bot_me.username
+        self.LOGGER(__name__, self.name).info("Bot Started!!")
+        
+        # Start Web Server
+        app = web.AppRunner(await web_server())
+        await app.setup()
+        await web.TCPSite(app, "0.0.0.0", PORT).start()
+        
+        # Send restart message to owner
         try:
             restart_message = "<b>›› ʜᴇʏ sᴇɴᴘᴀɪ!!\n ɪ'ᴍ ᴀʟɪᴠᴇ ɴᴏᴡ 🍃...</b>"
             await self.send_message(chat_id=self.owner, text=restart_message)
             self.LOGGER(__name__, self.name).info(f"Restart notification sent to owner: {self.owner}")
         except Exception as e:
             self.LOGGER(__name__, self.name).warning(f"Failed to send restart notification to owner: {e}")
-        
-        self.username = usr_bot_me.username
+
     async def stop(self, *args):
         await super().stop()
         self.LOGGER(__name__, self.name).info("Bot stopped.")
 
+    def run(self):
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.start())
+        self.LOGGER(__name__, self.name).info("Bot is now running. Thanks to @ig_mentor")
+        try:
+            loop.run_forever()
+        except KeyboardInterrupt:
+            self.LOGGER(__name__, self.name).info("Shutting down...")
+        finally:
+            loop.run_until_complete(self.stop())
 
-async def web_app():
-    app = web.AppRunner(await web_server())
-    await app.setup()
-    bind_address = "0.0.0.0"
-    await web.TCPSite(app, bind_address, PORT).start()
-    
+
 # At the end of bot.py
+
 from plugins import web_server
-web_app = web_server  # or web_server()
+web_app = web_server
