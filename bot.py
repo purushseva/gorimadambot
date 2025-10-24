@@ -184,3 +184,6 @@ async def web_app():
     bind_address = "0.0.0.0"
     await web.TCPSite(app, bind_address, PORT).start()
     
+# At the end of bot.py
+from plugins import web_server
+web_app = web_server  # or web_server()
