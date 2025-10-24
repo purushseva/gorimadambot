@@ -154,6 +154,9 @@ class Bot(Client):
     self.LOGGER(__name__).info("\nBot may have issues but will continue running. Join https://t.me/+RNPh1LbP8QZlYmU1 for support")
     # Removed sys.exit() to prevent stop
         class Bot(Client):
+    def __init__(self):
+        # rest of class
+
     def start(self):
     # other code
     self.LOGGER(__name__, self.name).info("Bot Started!!")
